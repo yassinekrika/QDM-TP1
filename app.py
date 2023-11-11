@@ -1,55 +1,26 @@
 import cv2
 import numpy as np
-from PIL import Image
-import openpyxl
 import pandas as pd
-import math
 
 
 # Implementing Metrics
-
-def psnr(img1, img2):
-    if img1.shape != img2.shape:
-        raise ValueError("Input images must have the same dimensions")
-
-    # Calculate the Mean Squared Error (MSE)
+    
+def psnr(img1, img2, max_pixel_value=255):    
     mse = np.mean((img1 - img2) ** 2)
-
     if mse == 0:
-        return float('inf')
-    else:
-        max_pixel = 255.0
-        psnr = 20 * np.log10(max_pixel / float(np.sqrt(mse)))
-        return psnr
+        return 100
 
-def Psnr(ImageOrig,ImageD):
-
-    print("PSNR Globale")
-    ResultatPSNR = 0
-    Somme = 0
-    
-    L,H=ImageOrig.shape
-    MatOrig=np.array(ImageOrig)
-    MatD=np.array(ImageD)
-    
-    for i in range(H):        
-        for j in range(L):
-            
-            Somme = Somme +((int(MatOrig[i,j]) - int(MatD[i,j]))**2)
-
-  
-    Max2 = 255**2       
-    MSE = (Somme/float(L*H)) 
-    M = Max2/float(MSE)     
-    ResultatPSNR= 20 * math.log10(M)
-    return ResultatPSNR
+    psnr_value = 10 * np.log10((max_pixel_value ** 2) / mse)
+    print(cv2.PSNR(img1, img2))
+    return psnr_value
 
 def ssim(x, y):
     μ_x = np.mean(x)
     μ_y = np.mean(y)
-    s_x = np.std(x)
-    s_y = np.std(y)
-    s_xy = np.cov(x, y)[0, 1]
+
+    s_x = sigma(x, μ_x)
+    s_y = sigma(y, μ_y)
+    s_xy = sigmaXY(x, y, μ_x, μ_y)
 
     L = (2 ** 8) - 1
 
@@ -63,36 +34,30 @@ def ssim(x, y):
 
     return SSIM
 
-# def ssim(img1, img2): 
-#     # Constants for SSIM calculation
-#     C1 = (0.01 * 255) ** 2
-#     C2 = (0.03 * 255) ** 2
+def ms_ssim(img1, img2, max_value=255, num_scales=5):
+    scale_weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Adjust these weights as needed
 
-#     # Mean of the images
-#     mu1 = np.mean(img1)
-#     mu2 = np.mean(img2)
+    ssim_values = []
+    for scale in range(1, num_scales + 1):
+        img1_scaled = _downsample(img1, scale)
+        img2_scaled = _downsample(img2, scale)
 
-#     # Variance of the images
-#     sigma1_sq = np.var(img1)
-#     sigma2_sq = np.var(img2)
+        ssim_values.append(ssim(img1_scaled, img2_scaled))
 
-#     # Covariance between the images
-#     sigma12 = np.cov(img1.flatten(), img2.flatten())[0, 1]
+    ms_ssim_result = np.prod(np.power(ssim_values, scale_weights))
+    return ms_ssim_result
 
-#     # SSIM calculation
-#     numerator = (2 * mu1 * mu2 + C1) * (2 * sigma12 + C2)
-#     denominator = (mu1 ** 2 + mu2 ** 2 + C1) * (sigma1_sq + sigma2_sq + C2)
+def _downsample(img, scale):
+    """Downsample the image by a specified scale."""
+    return img[::scale, ::scale]
 
-#     ssim = numerator / denominator
+def sigma(img, mu):
+    """Calculate the standard deviation of the image."""
+    return np.sqrt(np.mean((img - mu)**2))
 
-#     return ssim
-
-def ms_ssim(x, y, levels=5):
-    result = 0
-    for _ in range(levels):
-        result *= c(x, y) * s(x, y)
-    
-    return result * l(x, y)
+def sigmaXY(img1, img2, mu1, mu2):
+    """Calculate the cross-covariance between two images."""
+    return np.mean((img1 - mu1) * (img2 - mu2))
 
 def l(x, y):
     u_x = np.mean(x)
@@ -126,51 +91,37 @@ def s(x, y):
 
     return (2 * sigma_xy + (k2 * L) ** 2) / (2 * sigma_x * sigma_y + (k2 * L) ** 2)
 
-# def mean(img):
-#     mean = 0
-#     w, h = img.shape
-#     n = 0
-
-#     for i in range(w):
-#         for j in range(h):
-#             mean += img[i][j]
-#             n += 1
-
-#     return mean / float(n)
-
-# def sigma(img):
-#     sigma = 0
-#     n = 0
-#     w, h = img.shape
-#     u = mean(img)
-
-#     for i in range(w):
-#         for j in range(h):
-
 # comparaison
 
 def rmse(img1, img2):
-    img1 = cv2.imread(img1)
-    img2 = cv2.imread(img2)
-
     return np.sqrt(np.mean((img1 - img2) ** 2) / 982)
 
 def pcc(img1, img2):
-    img1 = cv2.imread(img1)
-    img2 = cv2.imread(img2)
 
-    sigma_x = np.std(x)
-    sigma_y = np.std(y)
-    sigma_xy = np.cov(img1, img2)[0, 1]
+    u_x = np.mean(img1)
+    u_y = np.mean(img2)
 
-    return sigma_xy / (sigma_x * sigma_y)
+    s_x = sigma(x, u_x)
+    s_y = sigma(y, u_y)
+    s_xy = sigmaXY(x, y, u_x, u_y)
+
+    return s_xy / (s_x * s_y)
 
 def rho(img1, img2):
-    img1 = cv2.imread(img1)
-    img2 = cv2.imread(img2)
+    n = len(img1)
+    
+    # Create pairs of ranks
+    ranked_data1 = sorted(range(n), key=lambda i: img1[i])
+    ranked_data2 = sorted(range(n), key=lambda i: img2[i])
 
+    # Calculate differences between ranks
+    d = [rank1 - rank2 for rank1, rank2 in zip(ranked_data1, ranked_data2)]
 
-   
+    # Calculate Spearman's Rank Correlation Coefficient
+    rho = 1 - (6 * sum(x**2 for x in d)) / (n * (n**2 - 1))
+
+    return rho
+ 
 with open('/home/yassg4mer/Downloads/Py/jp2k/info.txt') as f:
     lines = f.readlines()
 
@@ -190,15 +141,11 @@ with open('/home/yassg4mer/Downloads/Py/jp2k/info.txt') as f:
         image_origin_path = '/home/yassg4mer/Downloads/Py/refimgs/' + image_origin
         image_degraded_path = '/home/yassg4mer/Downloads/Py/jp2k/' + image_degraded
 
-        # x = np.array(Image.open(image_origin_path).convert("L"))
-        # y = np.array(Image.open(image_degraded_path).convert("L"))
+        x = cv2.imread(image_origin_path, cv2.IMREAD_GRAYSCALE)
+        y = cv2.imread(image_degraded_path, cv2.IMREAD_GRAYSCALE)
 
-        x = cv2.imread(image_origin_path)
-        y = cv2.imread(image_degraded_path)
-
-        # convert into gray scale
-        x = cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)
-        y = cv2.cvtColor(y, cv2.COLOR_BGR2GRAY)
+        x = x.astype(np.float64)
+        y = y.astype(np.float64)
 
         # Calculate the SSIM between the two images.
         ssim_result = ssim(x, y)
