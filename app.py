@@ -165,7 +165,7 @@ with open('/home/yassg4mer/Downloads/Py/jp2k/info.txt') as f:
                         'ms_ssim_result': ms_ssim_result_array, 
                         'psnr_result': psnr_result_array
                         })
-    df.to_excel('ssim.xlsx', index=False)
+    df.to_excel('objective.xlsx', index=False)
 
 
 
