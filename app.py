@@ -59,38 +59,6 @@ def sigmaXY(img1, img2, mu1, mu2):
     """Calculate the cross-covariance between two images."""
     return np.mean((img1 - mu1) * (img2 - mu2))
 
-def l(x, y):
-    u_x = np.mean(x)
-    u_y = np.mean(y)
-
-    L = (2 ** 8) - 1
-
-    k1 = 0.01
-
-    return (2 * u_x * u_y + (k1 * L) ** 2) / (u_x ** 2 + u_y ** 2 + (k1 * L) ** 2)  
-    
-def c(x, y):
-    sigma_x = np.std(x)
-    sigma_y = np.std(y)
-    sigma_xy = np.cov(x, y)[0, 1]
-
-    L = (2 ** 8) - 1
-
-    k2 = 0.03
-
-    return (2 * sigma_xy + (k2 * L) ** 2) / (sigma_x ** 2 + sigma_y ** 2 + (k2 * L) ** 2)
-
-def s(x, y): 
-    sigma_x = np.std(x)
-    sigma_y = np.std(y)
-    sigma_xy = np.cov(x, y)[0, 1]
-
-    L = (2 ** 8) - 1
-
-    k2 = 0.03
-
-    return (2 * sigma_xy + (k2 * L) ** 2) / (2 * sigma_x * sigma_y + (k2 * L) ** 2)
-
 # comparaison
 
 def rmse(img1, img2):
@@ -98,14 +66,20 @@ def rmse(img1, img2):
 
 def pcc(img1, img2):
 
-    u_x = np.mean(img1)
-    u_y = np.mean(img2)
+    mean_X = np.mean(img1)
+    mean_Y = np.mean(img2)
 
-    s_x = sigma(x, u_x)
-    s_y = sigma(y, u_y)
-    s_xy = sigmaXY(x, y, u_x, u_y)
+    # Calculate covariance
+    covariance = np.sum((img1 - mean_X) * (img2 - mean_Y))
 
-    return s_xy / (s_x * s_y)
+    # Calculate standard deviations
+    std_X = np.sqrt(np.sum((img1 - mean_X)**2))
+    std_Y = np.sqrt(np.sum((img2 - mean_Y)**2))
+
+    # Calculate Pearson Correlation Coefficient
+    pcc = covariance / (std_X * std_Y)
+
+    return pcc
 
 def rho(img1, img2):
     n = len(img1)
@@ -121,54 +95,82 @@ def rho(img1, img2):
     rho = 1 - (6 * sum(x**2 for x in d)) / (n * (n**2 - 1))
 
     return rho
- 
-with open('/home/yassg4mer/Downloads/Py/jp2k/info.txt') as f:
-    lines = f.readlines()
 
-    image_origin_array = []
-    image_degraded_array = []
-    ssim_result_array = []
-    ms_ssim_result_array = []
-    psnr_result_array = []
+df = pd.read_excel('/home/yassg4mer/Downloads/Py/objective.xlsx', usecols=['psnr_result', 'subjective_result'] )
+print(df['psnr_result'])
 
-    for line in lines:
-        image_origin = line.split(' ')[0]
-        image_degraded = line.split(' ')[1]
+rmse_psnr_result_array = []
+pcc_psnr_result_array = []
+rho_psnr_result_array = []
 
-        image_origin_array.append(image_origin)
-        image_degraded_array.append(image_degraded)
+for i in range(len(df['psnr_result'])):
 
-        image_origin_path = '/home/yassg4mer/Downloads/Py/refimgs/' + image_origin
-        image_degraded_path = '/home/yassg4mer/Downloads/Py/jp2k/' + image_degraded
+    rmse_psnr_result = rmse(df['psnr_result'][i], df['subjective_result'][i])
+    pcc_psnr_result = pcc(df['psnr_result'], df['subjective_result'])
+    rho_psnr_result = rho(df['psnr_result'], df['subjective_result'])
 
-        x = cv2.imread(image_origin_path, cv2.IMREAD_GRAYSCALE)
-        y = cv2.imread(image_degraded_path, cv2.IMREAD_GRAYSCALE)
+    rmse_psnr_result_array.append(rmse_psnr_result)
+    pcc_psnr_result_array.append(pcc_psnr_result)
+    rho_psnr_result_array.append(rho_psnr_result)
 
-        x = x.astype(np.float64)
-        y = y.astype(np.float64)
+dff = pd.DataFrame({'rmse_psnr_result': rmse_psnr_result_array, 
+                    'pcc_psnr_result': pcc_psnr_result_array,
+                    'rho_psnr_result': rho_psnr_result_array})
 
-        # Calculate the SSIM between the two images.
-        ssim_result = ssim(x, y)
-        ms_ssim_result = ms_ssim(x, y)
-        psnr_result = psnr(x, y)
+dff.to_excel('comparaison.xlsx', index=False)
 
-        ms_ssim_result_array.append(ms_ssim_result)
-        ssim_result_array.append(ssim_result)
-        psnr_result_array.append(psnr_result)
 
-        print(image_origin, image_degraded, ssim_result, ms_ssim_result, psnr_result)
+
+
+
+# with open('/home/yassg4mer/Downloads/Py/jp2k/info.txt') as f:
+#     lines = f.readlines()
+
+#     image_origin_array = []
+#     image_degraded_array = []
+
+#     ssim_result_array = []
+#     ms_ssim_result_array = []
+#     psnr_result_array = []
+
+#     for line in lines:
+#         image_origin = line.split(' ')[0]
+#         image_degraded = line.split(' ')[1]
+
+#         image_origin_array.append(image_origin)
+#         image_degraded_array.append(image_degraded)
+
+#         image_origin_path = '/home/yassg4mer/Downloads/Py/refimgs/' + image_origin
+#         image_degraded_path = '/home/yassg4mer/Downloads/Py/jp2k/' + image_degraded
+
+#         x = cv2.imread(image_origin_path, cv2.IMREAD_GRAYSCALE)
+#         y = cv2.imread(image_degraded_path, cv2.IMREAD_GRAYSCALE)
+
+#         x = x.astype(np.float64)
+#         y = y.astype(np.float64)
+
+#         # Calculate the SSIM between the two images.
+#         ssim_result = ssim(x, y)
+#         ms_ssim_result = ms_ssim(x, y)
+#         psnr_result = psnr(x, y)
+
+#         ms_ssim_result_array.append(ms_ssim_result)
+#         ssim_result_array.append(ssim_result)
+#         psnr_result_array.append(psnr_result)
+
+#         print(image_origin, image_degraded, ssim_result, ms_ssim_result, psnr_result)
         
-    # add multiple columns to dataframe at once 
-    df = pd.DataFrame({'image_origin': image_origin_array, 
-                        'image_degraded': image_degraded_array, 
-                        'ssim_result': ssim_result_array, 
-                        'ms_ssim_result': ms_ssim_result_array, 
-                        'psnr_result': psnr_result_array
-                        })
-    df.to_excel('objective.xlsx', index=False)
+#     # add multiple columns to dataframe at once 
+#     df = pd.DataFrame({'image_origin': image_origin_array, 
+#                         'image_degraded': image_degraded_array, 
+#                         'ssim_result': ssim_result_array, 
+#                         'ms_ssim_result': ms_ssim_result_array, 
+#                         'psnr_result': psnr_result_array
+#                         })
+#     df.to_excel('objective.xlsx', index=False)
 
 
 
 
-    print(image_origin)
+#     print(image_origin)
 
