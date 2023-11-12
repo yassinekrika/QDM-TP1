@@ -54,6 +54,8 @@ class App(tkinter.Tk):
         self.comparaison_button = Button(self, text="Make Comparaison", command=self.calculate_comparaison)
         self.comparaison_button.grid(row=8, column=0, pady=10)
 
+        self.quit_button = Button(self, text="Quit", command=self.quit)
+        self.quit_button.grid(row=9, column=0, pady=10)
 
 
     def upload_image1(self):
@@ -125,7 +127,7 @@ class App(tkinter.Tk):
         self.ssim_label.grid(row=5, column=1, pady=10)
 
     def ms_ssim(self, img1, img2, max_value=255, num_scales=5):
-        scale_weights = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]  # Adjust these weights as needed
+        scale_weights = [1, 1, 1, 1, 1]  
 
         ssim_values = []
         for scale in range(1, num_scales + 1):
@@ -138,7 +140,6 @@ class App(tkinter.Tk):
         return ms_ssim_result
 
     def _downsample(self, img, scale):
-        """Downsample the image by a specified scale."""
         return img[::scale, ::scale]
 
     def caculate_ms_ssim(self):

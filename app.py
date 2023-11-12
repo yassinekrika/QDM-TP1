@@ -155,54 +155,54 @@ dff = pd.DataFrame({ # psnr
 
 dff.to_excel('comparaison.xlsx', index=False)
 
-# with open('/home/yassg4mer/Downloads/Py/jp2k/info.txt') as f:
-#     lines = f.readlines()
+with open('/home/yassg4mer/Downloads/Py/jp2k/info.txt') as f:
+    lines = f.readlines()
 
-#     image_origin_array = []
-#     image_degraded_array = []
+    image_origin_array = []
+    image_degraded_array = []
 
-#     ssim_result_array = []
-#     ms_ssim_result_array = []
-#     psnr_result_array = []
+    ssim_result_array = []
+    ms_ssim_result_array = []
+    psnr_result_array = []
 
-#     for line in lines:
-#         image_origin = line.split(' ')[0]
-#         image_degraded = line.split(' ')[1]
+    for line in lines:
+        image_origin = line.split(' ')[0]
+        image_degraded = line.split(' ')[1]
 
-#         image_origin_array.append(image_origin)
-#         image_degraded_array.append(image_degraded)
+        image_origin_array.append(image_origin)
+        image_degraded_array.append(image_degraded)
 
-#         image_origin_path = '/home/yassg4mer/Downloads/Py/refimgs/' + image_origin
-#         image_degraded_path = '/home/yassg4mer/Downloads/Py/jp2k/' + image_degraded
+        image_origin_path = '/home/yassg4mer/Downloads/Py/refimgs/' + image_origin
+        image_degraded_path = '/home/yassg4mer/Downloads/Py/jp2k/' + image_degraded
 
-#         x = cv2.imread(image_origin_path, cv2.IMREAD_GRAYSCALE)
-#         y = cv2.imread(image_degraded_path, cv2.IMREAD_GRAYSCALE)
+        x = cv2.imread(image_origin_path, cv2.IMREAD_GRAYSCALE)
+        y = cv2.imread(image_degraded_path, cv2.IMREAD_GRAYSCALE)
 
-#         x = x.astype(np.float64)
-#         y = y.astype(np.float64)
+        x = x.astype(np.float64)
+        y = y.astype(np.float64)
 
-#         # Calculate the SSIM between the two images.
-#         ssim_result = ssim(x, y)
-#         ms_ssim_result = ms_ssim(x, y)
-#         psnr_result = psnr(x, y)
+        # Calculate the SSIM between the two images.
+        ssim_result = ssim(x, y)
+        ms_ssim_result = ms_ssim(x, y)
+        psnr_result = psnr(x, y)
 
-#         ms_ssim_result_array.append(ms_ssim_result)
-#         ssim_result_array.append(ssim_result)
-#         psnr_result_array.append(psnr_result)
+        ms_ssim_result_array.append(ms_ssim_result)
+        ssim_result_array.append(ssim_result)
+        psnr_result_array.append(psnr_result)
 
-#         print(image_origin, image_degraded, ssim_result, ms_ssim_result, psnr_result)
+        print(image_origin, image_degraded, ssim_result, ms_ssim_result, psnr_result)
         
-#     # add multiple columns to dataframe at once 
-#     df = pd.DataFrame({'image_origin': image_origin_array, 
-#                         'image_degraded': image_degraded_array, 
-#                         'ssim_result': ssim_result_array, 
-#                         'ms_ssim_result': ms_ssim_result_array, 
-#                         'psnr_result': psnr_result_array
-#                         })
-#     df.to_excel('objective.xlsx', index=False)
+    # add multiple columns to dataframe at once 
+    df = pd.DataFrame({'image_origin': image_origin_array, 
+                        'image_degraded': image_degraded_array, 
+                        'ssim_result': ssim_result_array, 
+                        'ms_ssim_result': ms_ssim_result_array, 
+                        'psnr_result': psnr_result_array
+                        })
+    df.to_excel('objective.xlsx', index=False)
 
 
 
 
-#     print(image_origin)
+    print(image_origin)
 
