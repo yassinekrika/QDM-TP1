@@ -11,16 +11,16 @@ def psnr(img1, img2, max_pixel_value=255):
         return 100
 
     psnr_value = 10 * np.log10((max_pixel_value ** 2) / mse)
-    print(cv2.PSNR(img1, img2))
+
     return psnr_value
 
-def ssim(x, y):
-    μ_x = np.mean(x)
-    μ_y = np.mean(y)
+def ssim(img1, img2):
+    μ_x = np.mean(img1)
+    μ_y = np.mean(img2)
 
-    s_x = sigma(x, μ_x)
-    s_y = sigma(y, μ_y)
-    s_xy = sigmaXY(x, y, μ_x, μ_y)
+    s_x = sigma(img1, μ_x)
+    s_y = sigma(img2, μ_y)
+    s_xy = sigmaXY(img1, img2, μ_x, μ_y)
 
     L = (2 ** 8) - 1
 
@@ -52,11 +52,9 @@ def _downsample(img, scale):
     return img[::scale, ::scale]
 
 def sigma(img, mu):
-    """Calculate the standard deviation of the image."""
     return np.sqrt(np.mean((img - mu)**2))
 
 def sigmaXY(img1, img2, mu1, mu2):
-    """Calculate the cross-covariance between two images."""
     return np.mean((img1 - mu1) * (img2 - mu2))
 
 # comparaison
@@ -156,10 +154,6 @@ dff = pd.DataFrame({ # psnr
                     'rho_ms_ssim_result': rho_ms_ssim_result_array,})
 
 dff.to_excel('comparaison.xlsx', index=False)
-
-
-
-
 
 # with open('/home/yassg4mer/Downloads/Py/jp2k/info.txt') as f:
 #     lines = f.readlines()
