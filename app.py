@@ -96,26 +96,47 @@ def rho(img1, img2):
 
     return rho
 
-df = pd.read_excel('/home/yassg4mer/Downloads/Py/objective.xlsx', usecols=['psnr_result', 'subjective_result'] )
-print(df['psnr_result'])
+df = pd.read_excel('/home/yassg4mer/Downloads/Py/objective.xlsx', usecols=['ssim_result', 'ms_ssim_result', 'psnr_result', 'subjective_result'] )
+print(df['ssim_result'])
 
 rmse_psnr_result_array = []
 pcc_psnr_result_array = []
 rho_psnr_result_array = []
 
+rmse_ssim_result_array = []
+pcc_ssim_result_array = []
+rho_ssim_result_array = []
+
+
 for i in range(len(df['psnr_result'])):
 
+    # psnr result
     rmse_psnr_result = rmse(df['psnr_result'][i], df['subjective_result'][i])
     pcc_psnr_result = pcc(df['psnr_result'], df['subjective_result'])
     rho_psnr_result = rho(df['psnr_result'], df['subjective_result'])
+
+    # ssim result
+    rmse_ssim_result = rmse(df['ssim_result'][i], df['subjective_result'][i])
+    pcc_ssim_result = pcc(df['ssim_result'], df['subjective_result'])
+    rho_ssim_result = rho(df['ssim_result'], df['subjective_result'])
 
     rmse_psnr_result_array.append(rmse_psnr_result)
     pcc_psnr_result_array.append(pcc_psnr_result)
     rho_psnr_result_array.append(rho_psnr_result)
 
-dff = pd.DataFrame({'rmse_psnr_result': rmse_psnr_result_array, 
+    rmse_ssim_result_array.append(rmse_ssim_result)
+    pcc_ssim_result_array.append(pcc_ssim_result)
+    rho_ssim_result_array.append(rho_ssim_result)
+
+
+dff = pd.DataFrame({ # psnr
+                    'rmse_psnr_result': rmse_psnr_result_array, 
                     'pcc_psnr_result': pcc_psnr_result_array,
-                    'rho_psnr_result': rho_psnr_result_array})
+                    'rho_psnr_result': rho_psnr_result_array, 
+                    # ssim
+                    'rmse_ssim_result': rmse_ssim_result_array,
+                    'pcc_ssim_result': pcc_ssim_result_array,
+                    'rho_ssim_result': rho_ssim_result_array,})
 
 dff.to_excel('comparaison.xlsx', index=False)
 
