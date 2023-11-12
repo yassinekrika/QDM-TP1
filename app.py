@@ -115,17 +115,17 @@ rho_ms_ssim_result_array = []
 for i in range(len(df['psnr_result'])):
 
     # psnr result
-    rmse_psnr_result = rmse(df['psnr_result'][i], df['subjective_result'][i])
+    rmse_psnr_result = rmse(df['psnr_result'], df['subjective_result'])
     pcc_psnr_result = pcc(df['psnr_result'], df['subjective_result'])
     rho_psnr_result = rho(df['psnr_result'], df['subjective_result'])
 
     # ssim result
-    rmse_ssim_result = rmse(df['ssim_result'][i], df['subjective_result'][i])
+    rmse_ssim_result = rmse(df['ssim_result'], df['subjective_result'])
     pcc_ssim_result = pcc(df['ssim_result'], df['subjective_result'])
     rho_ssim_result = rho(df['ssim_result'], df['subjective_result'])
 
     # ms_ssim result
-    rmse_ms_ssim_result = rmse(df['ms_ssim_result'][i], df['subjective_result'][i])
+    rmse_ms_ssim_result = rmse(df['ms_ssim_result'], df['subjective_result'])
     pcc_ms_ssim_result = pcc(df['ms_ssim_result'], df['subjective_result'])
     rho_ms_ssim_result = rho(df['ms_ssim_result'], df['subjective_result'])
 
