@@ -107,6 +107,10 @@ rmse_ssim_result_array = []
 pcc_ssim_result_array = []
 rho_ssim_result_array = []
 
+rmse_ms_ssim_result_array = []
+pcc_ms_ssim_result_array = []
+rho_ms_ssim_result_array = []
+
 
 for i in range(len(df['psnr_result'])):
 
@@ -120,6 +124,11 @@ for i in range(len(df['psnr_result'])):
     pcc_ssim_result = pcc(df['ssim_result'], df['subjective_result'])
     rho_ssim_result = rho(df['ssim_result'], df['subjective_result'])
 
+    # ms_ssim result
+    rmse_ms_ssim_result = rmse(df['ms_ssim_result'][i], df['subjective_result'][i])
+    pcc_ms_ssim_result = pcc(df['ms_ssim_result'], df['subjective_result'])
+    rho_ms_ssim_result = rho(df['ms_ssim_result'], df['subjective_result'])
+
     rmse_psnr_result_array.append(rmse_psnr_result)
     pcc_psnr_result_array.append(pcc_psnr_result)
     rho_psnr_result_array.append(rho_psnr_result)
@@ -127,6 +136,10 @@ for i in range(len(df['psnr_result'])):
     rmse_ssim_result_array.append(rmse_ssim_result)
     pcc_ssim_result_array.append(pcc_ssim_result)
     rho_ssim_result_array.append(rho_ssim_result)
+
+    rmse_ms_ssim_result_array.append(rmse_ms_ssim_result)
+    pcc_ms_ssim_result_array.append(pcc_ms_ssim_result)
+    rho_ms_ssim_result_array.append(rho_ms_ssim_result)
 
 
 dff = pd.DataFrame({ # psnr
@@ -136,7 +149,11 @@ dff = pd.DataFrame({ # psnr
                     # ssim
                     'rmse_ssim_result': rmse_ssim_result_array,
                     'pcc_ssim_result': pcc_ssim_result_array,
-                    'rho_ssim_result': rho_ssim_result_array,})
+                    'rho_ssim_result': rho_ssim_result_array,
+                    # ms_ssim
+                    'rmse_ms_ssim_result': rmse_ms_ssim_result_array,
+                    'pcc_ms_ssim_result': pcc_ms_ssim_result_array,
+                    'rho_ms_ssim_result': rho_ms_ssim_result_array,})
 
 dff.to_excel('comparaison.xlsx', index=False)
 
